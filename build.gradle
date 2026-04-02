@@ -1,19 +1,22 @@
 plugins {
     id 'java'
+    id 'io.qameta.allure' version '2.11.2'
 }
 
 group = 'sarinxo.edu'
 version = '1.0-SNAPSHOT'
-
-
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation "org.projectlombok:lombok:${lombokVersion}"
     implementation "org.yaml:snakeyaml:${yamlVersion}"
+
+    implementation "io.qameta.allure:allure-junit5:${allureVersion}"
+
+    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     testImplementation "org.seleniumhq.selenium:selenium-java:${seleniumVersion}"
     testImplementation "org.seleniumhq.selenium:selenium-grid:${seleniumVersion}"

@@ -1,16 +1,24 @@
 package page;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 
+import java.util.List;
+
+import static utils.PageUtils.scrollToElement;
 import static utils.PageUtils.selectCheckbox;
 import static utils.PageUtils.setText;
 
-public class FormFieldsPage {
-    
+@Slf4j
+public class FormFieldsPage implements AutoCloseable {
+
+    @Getter
     private final WebDriver driver;
 
     /*
@@ -43,26 +51,29 @@ public class FormFieldsPage {
     /*
      * Область Favorite color
      */
-    @FindBy(id = "color1")
+    @FindBy(css = "#color1")
     private WebElement redRadio;
 
-    @FindBy(id = "color2")
+    @FindBy(css = "#color2")
     private WebElement blueRadio;
 
-    @FindBy(id = "color3")
+    @FindBy(css = "#color3")
     private WebElement yellowRadio;
 
-    @FindBy(id = "color4")
+    @FindBy(css = "#color4")
     private WebElement greenRadio;
 
     /**
      * На сайте представлен hex код #FFC0CB
      */
-    @FindBy(id = "color5")
+    @FindBy(css = "#color5")
     private WebElement pinkRadio;
 
     @FindBy(id = "automation")
     private WebElement automationDropdown;
+
+    @FindBy(xpath = "//label[text()='Automation tools']/following-sibling::ul/li")
+    private List<WebElement> automationTools;
 
     @FindBy(id = "email")
     private WebElement emailInput;
@@ -70,7 +81,7 @@ public class FormFieldsPage {
     @FindBy(xpath = "//textarea")
     private WebElement messageInput;
 
-    @FindBy(css = "button[type='submit']")
+    @FindBy(id = "submit-btn")
     private WebElement submitButton;
 
     public FormFieldsPage(WebDriver driver) {
@@ -78,42 +89,59 @@ public class FormFieldsPage {
         PageFactory.initElements(driver, this);
     }
 
+    @Override
+    public void close() {
+        try {
+            driver.close();
+        } catch (Exception e) {
+            log.info("Ошибка при закрытии драйвера браузера");
+        }
+    }
+
     public FormFieldsPage enterName(String name) {
+        scrollToElement(driver, nameInput);
         setText(nameInput, name);
         return this;
     }
 
     public FormFieldsPage enterPassword(String password) {
+        scrollToElement(driver, passwordInput);
         setText(passwordInput, password);
         return this;
     }
 
     public FormFieldsPage selectWater() {
+        scrollToElement(driver, waterCheckBox);
         selectCheckbox(waterCheckBox);
         return this;
     }
 
     public FormFieldsPage selectMilk() {
+        scrollToElement(driver, milkCheckbox);
         selectCheckbox(milkCheckbox);
         return this;
     }
 
     public FormFieldsPage selectCoffee() {
+        scrollToElement(driver, coffeeCheckbox);
         selectCheckbox(coffeeCheckbox);
         return this;
     }
 
     public FormFieldsPage selectWine() {
+        scrollToElement(driver, wineCheckbox);
         selectCheckbox(wineCheckbox);
         return this;
     }
 
     public FormFieldsPage selectCtrlAltDelight() {
+        scrollToElement(driver, ctrlAltDelightCheckBox);
         selectCheckbox(ctrlAltDelightCheckBox);
         return this;
     }
 
     public FormFieldsPage selectColor(Color color) {
+        scrollToElement(driver, redRadio); //считаем, что цвета расположены вместе
         switch (color) {
             case RED -> redRadio.click();
             case BLUE -> blueRadio.click();
@@ -126,21 +154,31 @@ public class FormFieldsPage {
     }
 
     public FormFieldsPage selectAutomation(AutomationOption option) {
+        scrollToElement(driver, automationDropdown);
         new Select(automationDropdown).selectByVisibleText(option.getValue());
         return this;
     }
 
+    public List<String> getAutomationTools() {
+        return automationTools.stream()
+                .map(WebElement::getText)
+                .toList();
+    }
+
     public FormFieldsPage enterEmail(String email) {
+        scrollToElement(driver, emailInput);
         setText(emailInput, email);
         return this;
     }
 
     public FormFieldsPage enterMessage(String message) {
+        scrollToElement(driver, messageInput);
         setText(messageInput, message);
         return this;
     }
 
     public FormFieldsPage submit() {
+        scrollToElement(driver, submitButton);
         submitButton.click();
         return this;
     }
